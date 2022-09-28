@@ -863,6 +863,24 @@ IOReturn ApplePS2Keyboard::setProperties(OSObject *props)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+void ApplePS2Keyboard::systemWillShutdown(IOMessage msg)
+{
+    if (msg == kIOMessageSystemWillRestart)
+    {
+        //
+        // Keep keyboard enabled on reboot so that it works in BIOS/UEFI
+        //
+        setKeyboardEnable(true);
+        setDefaults();
+    }
+    else if (msg == kIOMessageSystemWillPowerOff)
+    {
+        setKeyboardEnable(false);
+    }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 void ApplePS2Keyboard::stop(IOService * provider)
 {
     //
@@ -872,14 +890,6 @@ void ApplePS2Keyboard::stop(IOService * provider)
     //
 
     assert(_device == provider);
-    
-    //
-    // Reset the keyboard but keep it enabled. Disabling the keyboard
-    // may break the keyboard during a reboot.
-    //
-    
-    setDefaults();
-    
 
     // free up the command gate
     IOWorkLoop* pWorkLoop = getWorkLoop();

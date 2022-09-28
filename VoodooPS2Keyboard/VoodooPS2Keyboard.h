@@ -173,6 +173,7 @@ public:
 
     bool start(IOService * provider) override;
     void stop(IOService * provider) override;
+    void systemWillShutdown(IOMessage msg) override;
 
     virtual PS2InterruptResult interruptOccurred(UInt8 scanCode);
     virtual void packetReady();
