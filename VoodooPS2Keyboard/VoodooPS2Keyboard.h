@@ -131,6 +131,7 @@ private:
 
     virtual bool dispatchKeyboardEventWithPacket(const UInt8* packet);
     virtual void setLEDs(UInt8 ledState);
+    void setDefaults();
     virtual void setKeyboardEnable(bool enable);
     virtual void initKeyboard();
     virtual void setDevicePowerState(UInt32 whatToDo);

@@ -874,10 +874,12 @@ void ApplePS2Keyboard::stop(IOService * provider)
     assert(_device == provider);
     
     //
-    // Disable the keyboard itself, so that it may stop reporting key events.
+    // Reset the keyboard but keep it enabled. Disabling the keyboard
+    // may break the keyboard during a reboot.
     //
-
-    setKeyboardEnable(false);
+    
+    setDefaults();
+    
 
     // free up the command gate
     IOWorkLoop* pWorkLoop = getWorkLoop();
@@ -2207,12 +2209,8 @@ void ApplePS2Keyboard::setDevicePowerState( UInt32 whatToDo )
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void ApplePS2Keyboard::initKeyboard()
+void ApplePS2Keyboard::setDefaults()
 {
-    //
-    // Reset the keyboard to its default state.
-    //
-
     TPS2Request<2> request;
     request.commands[0].command = kPS2C_WriteDataPort;
     request.commands[0].inOrOut = kDP_SetDefaults;
@@ -2221,6 +2219,16 @@ void ApplePS2Keyboard::initKeyboard()
     request.commandsCount = 2;
     assert(request.commandsCount <= countof(request.commands));
     _device->submitRequestAndBlock(&request);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void ApplePS2Keyboard::initKeyboard()
+{
+    //
+    // Reset the keyboard to its default state.
+    //
+    setDefaults();
     
     // look for any keys that are down (just in case the reset happened with keys down)
     // for each key that is down, dispatch a key up for it
